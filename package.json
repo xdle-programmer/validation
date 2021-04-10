@@ -1,0 +1,19 @@
+{
+  "name": "tabs-toggle-script",
+  "version": "1.0.4",
+  "description": "Plugin for some tabs toggle. Pure js, no dependencies",
+  "main": "dist/script.js",
+  "browserslist": [
+    "> 1%",
+    "last 3 version"
+  ],
+  "author": "Yury Ustinov <yury.inform@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "babel-loader": "^8.1.0",
+    "@babel/polyfill": "^7.8.7"
+  }
+}
