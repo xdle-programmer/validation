@@ -1,12 +1,224 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>SomeFunction</title>
+    <title>Валидация</title>
 </head>
 <body>
+<link rel="stylesheet" href="../dist/style.css">
+<link rel="stylesheet" href="demo.css">
+
+
+<div class="demo">
+    <h1 class="demo__title">Валидация форм</h1>
+    <h2 class="demo__subtitle-h2">Использование</h2>
+    <div class="demo__text">
+        <p class="demo__text-article">Класс для валидации полей на лету с возможностью расширения своими правилами проверки. Базовое использование - создать минимальную html
+            структуру, создать инстанс класса и вызвать метод init()</p>
+        <p class="demo__text-article">Класс принимает следующие опции</p>
+        <div class="demo__code-wrapper">
+        <pre>
+            <code class="demo__code">
+formClass:'form-check',     // String. Класс формы.
+$form:document.getElementsByClassName(this.formClass)[0],       // node element. Node-элемент формы.
+formFieldClass:'form-check__field',     // String. Класс полей формы.
+$formFields:document.getElementsByClassName('form-check__field'),       // html collection. Html-коллеция полей формы.
+errorWrapperClass:'form-check__error',     // String. Класс враппера ошибки.
+errorShowClass:'form-check__error--show',     // String. Класс модификатор поля, в случае, если есть ошибка.
+buttonClass:'form-check__button',     // String. Класс кнопки валидации.
+$button:document.getElementsByClassName(this.formClass)[0],       // node element. Node-элемент кнопки валидации.
+buttonDisabledClass:'form-check__button--disabled',     // String. Класс модификатор кнопки, в случае, если есть ошибка.
+            </code>
+        </pre>
+        </div>
+        <p class="demo__text-article">Scss структура для классов по умолчанию</p>
+        <div class="demo__code-wrapper">
+        <pre>
+            <code class="demo__code">
+.form-check {
+
+  &__field {
+    position: relative;
+
+    &--error {
+      border: 1px solid #ff0000;
+    }
+  }
+
+  $error: '.form-check__field--error';
+
+  &__error {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    width: fit-content;
+    height: 25px;
+    top: -31px;
+    left: 0;
+    border-radius: 2px;
+    padding: 0 15px;
+    font-size: 13px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: #ff0000;
+
+    &:after {
+      display: block;
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50px;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 5px 5px 0 5px;
+      border-color: #ff0000 transparent transparent transparent;
+    }
+
+    #{$error} & {
+      opacity: 1;
+      visibility: visible;
+    }
+
+  }
+
+  &__button {
+
+    &--disabled {
+    }
+
+  }
+}
+            </code>
+        </pre>
+        </div>
+    </div>
+
+
+    <h2 class="demo__subtitle-h2">Пример формы с созданием инстанса базового класса</h2>
+    <form class="form-check demo__form">
+        <h3 class="demo__subtitle-h3">Проверка, пустой ли инпут</h3>
+        <div class="form-check__field demo__input-wrapper" data-elem="input" data-rule="input-empty">
+            <input type="text" class="demo__input">
+        </div>
+        <h3 class="demo__subtitle-h3">Проверка на минимальное количество символов</h3>
+        <div class="form-check__field demo__input-wrapper" data-elem="input" data-rule="min-count-symbol" data-min-count-symbol="6">
+            <input type="text" class="demo__input">
+        </div>
+        <button class="form-check__button demo__button">Проверить</button>
+    </form>
+
+    <h2 class="demo__subtitle-h2">HTML формы</h2>
+
+    <div class="demo__code-wrapper">
+        <pre>
+            <code class="demo__code">
+&lt;form class=&quot;form-check demo__form&quot;&gt;
+    &lt;h3 class=&quot;demo__subtitle-h3&quot;&gt;Проверка, пустой ли инпут&lt;/h3&gt;
+    &lt;div class=&quot;form-check__field demo__input-wrapper&quot; data-elem=&quot;input&quot; data-rule=&quot;input-empty&quot;&gt;
+        &lt;input type=&quot;text&quot; class=&quot;demo__input&quot;&gt;
+    &lt;/div&gt;
+    &lt;h3 class=&quot;demo__subtitle-h3&quot;&gt;Проверка на минимальное количество символов&lt;/h3&gt;
+    &lt;div class=&quot;form-check__field demo__input-wrapper&quot; data-elem=&quot;input&quot; data-rule=&quot;min-count-symbol&quot; data-min-count-symbol=&quot;6&quot;&gt;
+        &lt;input type=&quot;text&quot; class=&quot;demo__input&quot;&gt;
+    &lt;/div&gt;
+    &lt;button class=&quot;form-check__button demo__button&quot;&gt;Проверить&lt;/button&gt;
+&lt;/form&gt;
+            </code>
+        </pre>
+    </div>
+
+    <h2 class="demo__subtitle-h2">JS формы</h2>
+
+    <div class="demo__code-wrapper">
+        <pre>
+            <code class="demo__code">
+let $formDefault = document.getElementsByClassName('form-check')[0];
+
+window.formDefault = new Validation({
+    $form: $formDefault,
+    errorWrapperClass:'demo__error',
+    errorShowClass:'demo__input-wrapper--error'
+});
+
+window.formDefault.init();
+            </code>
+        </pre>
+    </div>
+
+    <h2 class="demo__subtitle-h2">Пример формы с созданием наследуемого класса</h2>
+    <form class="form-check demo__form">
+        <h3 class="demo__subtitle-h3">Проверка, содержит ли поле 16 символов</h3>
+        <div class="form-check__field demo__input-wrapper" data-elem="input" data-rule="check-16">
+            <input type="text" class="demo__input">
+        </div>
+        <button class="form-check__button demo__button">Проверить</button>
+    </form>
+    <h2 class="demo__subtitle-h2">HTML формы</h2>
+
+    <div class="demo__code-wrapper">
+        <pre>
+            <code class="demo__code">
+&lt;form class=&quot;form-check demo__form&quot;&gt;
+    &lt;h3 class=&quot;demo__subtitle-h3&quot;&gt;Проверка, содержит ли поле 16 символов&lt;/h3&gt;
+    &lt;div class=&quot;form-check__field demo__input-wrapper&quot; data-elem=&quot;input&quot; data-rule=&quot;check-16&quot;&gt;
+        &lt;input type=&quot;text&quot; class=&quot;demo__input&quot;&gt;
+    &lt;/div&gt;
+    &lt;button class=&quot;form-check__button demo__button&quot;&gt;Проверить&lt;/button&gt;
+&lt;/form&gt;
+            </code>
+        </pre>
+    </div>
+
+    <h2 class="demo__subtitle-h2">JS формы</h2>
+
+    <div class="demo__code-wrapper">
+        <pre>
+            <code class="demo__code">
+class ValidationExtended extends Validation {
+    constructor(options) {
+        super(options);
+
+        this.rulesList.set(
+            'check-16', {
+                checkEvents: ['change'],
+                errorMessage: 'Поле содержит не 16 символов',
+                functionCheck: this.validateContent16symbols,
+            });
+    }
+
+    // Проверка контента, содержит ли поле 16 символов
+    validateContent16symbols($field, $elem, errorMessage) {
+        let val = $elem.value;
+        let validate = val.length === 16;
+        let priority = 100;
+
+        return {
+            validate: validate,
+            message: errorMessage,
+            priority: priority
+        };
+    }
+}
+
+let $formExtended = document.getElementsByClassName('form-check')[1];
+
+window.formExtended = new ValidationExtended({
+    $form: $formExtended,
+    errorWrapperClass:'demo__error',
+    errorShowClass:'demo__input-wrapper--error'
+});
+window.formExtended.init();
+            </code>
+        </pre>
+    </div>
+</div>
+
 
 <script src="../dist/script.js"></script>
-<script src="demo.js"></script>
+<script src="bundle/demo.js"></script>
 </body>
 </html>

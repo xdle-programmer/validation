@@ -1,3 +1,57 @@
-.someClass {
-  box-sizing: border-box;
+.form-check {
+
+  &__field {
+    position: relative;
+
+    &--error {
+      border: 1px solid #ff0000;
+    }
+  }
+
+  $error: '.form-check__field--error';
+
+  &__error {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    width: fit-content;
+    height: 25px;
+    top: -31px;
+    left: 0;
+    border-radius: 2px;
+    padding: 0 15px;
+    font-size: 13px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: #ff0000;
+
+    &:after {
+      display: block;
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50px;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 5px 5px 0 5px;
+      border-color: #ff0000 transparent transparent transparent;
+    }
+
+    #{$error} & {
+      opacity: 1;
+      visibility: visible;
+    }
+
+  }
+
+  &__button {
+
+    &--disabled {
+    }
+
+  }
 }
