@@ -70,7 +70,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
         this.addAllListeners();
         this.createErrorWrappers();
         this.validationForm(false);
-      } // Создание объекта с полями
+      } // TODO: Сделать правила проверки в виде статик метода
+      // Создание объекта с полями
 
     }, {
       key: "createFieldsArray",
