@@ -1,6 +1,6 @@
 {
   "name": "form-validation-expandable",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Plugin form validation",
   "main": "dist/script.js",
   "browserslist": [
