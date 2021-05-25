@@ -66,12 +66,14 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
     _createClass(Validation, [{
       key: "init",
       value: function init() {
+        this.fieldsArray = null;
         this.fieldsArray = this.createFieldsArray();
-        this.addAllListeners();
+        this.fieldListeners = [];
+        this.buttonListeners = [];
+        this.handleAllListeners(true);
         this.createErrorWrappers();
         this.validationForm(false);
-      } // TODO: Сделать правила проверки в виде статик метода
-      // Создание объекта с полями
+      } // Создание объекта с полями
 
     }, {
       key: "createFieldsArray",
@@ -199,7 +201,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
             var template = "<div class=\"".concat(this.errorWrapperClass, "\"></div>");
 
             if (field.$field.getElementsByClassName(this.errorWrapperClass).length > 0) {
-              field.$field.insertAdjacentHTML('beforeEnd', template);
+              return;
             }
 
             field.$field.insertAdjacentHTML('beforeEnd', template);
@@ -210,68 +212,104 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
         } finally {
           _iterator4.f();
         }
-      } // Создание событий
+      } // Удаление полей с ошибками
 
     }, {
-      key: "addAllListeners",
-      value: function addAllListeners() {
-        var _this = this;
-
+      key: "removeErrorWrappers",
+      value: function removeErrorWrappers() {
         var _iterator5 = _createForOfIteratorHelper(this.fieldsArray),
             _step5;
 
         try {
-          var _loop = function _loop() {
-            var field = _step5.value;
-
-            var _iterator6 = _createForOfIteratorHelper(field.rules),
-                _step6;
-
-            try {
-              for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-                var rule = _step6.value;
-
-                var eventChecks = _this.rulesList.get(rule).checkEvents;
-
-                var _iterator7 = _createForOfIteratorHelper(eventChecks),
-                    _step7;
-
-                try {
-                  for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-                    var eventCheck = _step7.value;
-                    field.$elem.addEventListener(eventCheck, function () {
-                      _this.validateField.bind(_this, field, true)();
-
-                      _this.validationForm.bind(_this, false)();
-                    });
-                  }
-                } catch (err) {
-                  _iterator7.e(err);
-                } finally {
-                  _iterator7.f();
-                }
-              }
-            } catch (err) {
-              _iterator6.e(err);
-            } finally {
-              _iterator6.f();
-            }
-          };
-
           for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-            _loop();
+            var field = _step5.value;
+            field.$field.classList.remove(this.errorShowClass);
+            var $errorWrapper = field.$field.getElementsByClassName(this.errorWrapperClass)[0];
+            $errorWrapper.remove();
           }
         } catch (err) {
           _iterator5.e(err);
         } finally {
           _iterator5.f();
         }
+      } // Создание событий
 
-        this.$button.addEventListener('click', function (event) {
+    }, {
+      key: "handleAllListeners",
+      value: function handleAllListeners(add) {
+        var index = 0;
+
+        var _iterator6 = _createForOfIteratorHelper(this.fieldsArray),
+            _step6;
+
+        try {
+          for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+            var field = _step6.value;
+
+            var _iterator7 = _createForOfIteratorHelper(field.rules),
+                _step7;
+
+            try {
+              for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+                var rule = _step7.value;
+                var eventChecks = this.rulesList.get(rule).checkEvents;
+                this.fieldListeners.push(this.addFieldEvent.bind(this, field));
+
+                var _iterator8 = _createForOfIteratorHelper(eventChecks),
+                    _step8;
+
+                try {
+                  for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
+                    var eventCheck = _step8.value;
+
+                    if (add) {
+                      field.$elem.addEventListener(eventCheck, this.fieldListeners[index]);
+                    } else {
+                      field.$elem.removeEventListener(eventCheck, this.fieldListeners[index]);
+                    }
+
+                    index++;
+                  }
+                } catch (err) {
+                  _iterator8.e(err);
+                } finally {
+                  _iterator8.f();
+                }
+              }
+            } catch (err) {
+              _iterator7.e(err);
+            } finally {
+              _iterator7.f();
+            }
+          }
+        } catch (err) {
+          _iterator6.e(err);
+        } finally {
+          _iterator6.f();
+        }
+
+        this.buttonListeners.push(this.addButtonEvent.bind(this));
+
+        if (add) {
+          this.$button.addEventListener('click', this.buttonListeners[0]);
+        } else {
+          this.$button.removeEventListener('click', this.buttonListeners[0]);
+        }
+      }
+    }, {
+      key: "addFieldEvent",
+      value: function addFieldEvent(field) {
+        this.validateField(field, true);
+        this.validationForm(false);
+      }
+    }, {
+      key: "addButtonEvent",
+      value: function addButtonEvent(event) {
+        this.validationForm(true);
+
+        if (this.$button.classList.contains(this.buttonDisabledClass)) {
           event.preventDefault();
-
-          _this.validationForm(true);
-        });
+        }
       } // Проверка пустого поля
 
     }, {
@@ -300,6 +338,78 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
           message: message,
           priority: priority
         };
+      } // Удаление событий
+
+    }, {
+      key: "removeAllListeners",
+      value: function removeAllListeners() {
+        var _this = this;
+
+        var _iterator9 = _createForOfIteratorHelper(this.fieldsArray),
+            _step9;
+
+        try {
+          var _loop = function _loop() {
+            var field = _step9.value;
+
+            var _iterator10 = _createForOfIteratorHelper(field.rules),
+                _step10;
+
+            try {
+              for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
+                var rule = _step10.value;
+
+                var eventChecks = _this.rulesList.get(rule).checkEvents;
+
+                var _iterator11 = _createForOfIteratorHelper(eventChecks),
+                    _step11;
+
+                try {
+                  for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
+                    var eventCheck = _step11.value;
+                    field.$elem.addEventListener(eventCheck, function () {
+                      _this.validateField.bind(_this, field, true)();
+
+                      _this.validationForm.bind(_this, false)();
+                    });
+                  }
+                } catch (err) {
+                  _iterator11.e(err);
+                } finally {
+                  _iterator11.f();
+                }
+              }
+            } catch (err) {
+              _iterator10.e(err);
+            } finally {
+              _iterator10.f();
+            }
+          };
+
+          for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
+            _loop();
+          }
+        } catch (err) {
+          _iterator9.e(err);
+        } finally {
+          _iterator9.f();
+        }
+
+        this.$button.addEventListener('click', function (event) {
+          _this.validationForm(true);
+
+          if (_this.$button.classList.contains(_this.buttonDisabledClass)) {
+            event.preventDefault();
+          }
+        });
+      } // Метод обновления формы
+
+    }, {
+      key: "refresh",
+      value: function refresh() {
+        this.handleAllListeners(false);
+        this.removeErrorWrappers();
+        this.init();
       }
     }]);
 

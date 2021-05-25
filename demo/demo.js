@@ -43,4 +43,3 @@ window.formExtended = new ValidationExtended({
     errorShowClass: 'demo__input-wrapper--error'
 });
 window.formExtended.init();
-

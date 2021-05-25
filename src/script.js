@@ -54,8 +54,11 @@
         }
 
         init() {
+            this.fieldsArray = null;
             this.fieldsArray = this.createFieldsArray();
-            this.addAllListeners();
+            this.fieldListeners = [];
+            this.buttonListeners = [];
+            this.handleAllListeners(true);
             this.createErrorWrappers();
             this.validationForm(false);
         }
@@ -83,7 +86,7 @@
                     elem: elem,
                     rules: rules,
                     $elem: $elem,
-                    $field: $formField
+                    $field: $formField,
                 };
 
                 fieldsArray.push(fieldObject);
@@ -153,7 +156,7 @@
                 let template = `<div class="${this.errorWrapperClass}"></div>`;
 
                 if (field.$field.getElementsByClassName(this.errorWrapperClass).length > 0) {
-                    field.$field.insertAdjacentHTML('beforeEnd', template);
+                    return;
                 }
 
                 field.$field.insertAdjacentHTML('beforeEnd', template);
@@ -161,25 +164,57 @@
             }
         }
 
+        // Удаление полей с ошибками
+        removeErrorWrappers() {
+            for (let field of this.fieldsArray) {
+                field.$field.classList.remove(this.errorShowClass);
+                let $errorWrapper = field.$field.getElementsByClassName(this.errorWrapperClass)[0];
+                $errorWrapper.remove();
+            }
+        }
+
+
         // Создание событий
-        addAllListeners() {
+        handleAllListeners(add) {
+            let index = 0;
+
             for (let field of this.fieldsArray) {
                 for (let rule of field.rules) {
                     let eventChecks = this.rulesList.get(rule).checkEvents;
+                    this.fieldListeners.push(this.addFieldEvent.bind(this, field));
 
                     for (let eventCheck of eventChecks) {
-                        field.$elem.addEventListener(eventCheck, () => {
-                            this.validateField.bind(this, field, true)();
-                            this.validationForm.bind(this, false)();
-                        });
+                        if (add) {
+                            field.$elem.addEventListener(eventCheck, this.fieldListeners[index]);
+                        } else {
+                            field.$elem.removeEventListener(eventCheck, this.fieldListeners[index]);
+                        }
+
+                        index++;
                     }
                 }
             }
 
-            this.$button.addEventListener('click', (event) => {
+            this.buttonListeners.push(this.addButtonEvent.bind(this));
+
+            if (add) {
+                this.$button.addEventListener('click', this.buttonListeners[0]);
+            } else {
+                this.$button.removeEventListener('click', this.buttonListeners[0]);
+            }
+        }
+
+        addFieldEvent(field) {
+            this.validateField(field, true);
+            this.validationForm(false);
+        }
+
+        addButtonEvent(event) {
+            this.validationForm(true);
+
+            if (this.$button.classList.contains(this.buttonDisabledClass)) {
                 event.preventDefault();
-                this.validationForm(true);
-            });
+            }
         }
 
         // Проверка пустого поля
@@ -208,6 +243,37 @@
                 message: message,
                 priority: priority
             };
+        }
+
+        // Удаление событий
+        removeAllListeners() {
+            for (let field of this.fieldsArray) {
+                for (let rule of field.rules) {
+                    let eventChecks = this.rulesList.get(rule).checkEvents;
+
+                    for (let eventCheck of eventChecks) {
+                        field.$elem.addEventListener(eventCheck, () => {
+                            this.validateField.bind(this, field, true)();
+                            this.validationForm.bind(this, false)();
+                        });
+                    }
+                }
+            }
+
+            this.$button.addEventListener('click', (event) => {
+                this.validationForm(true);
+
+                if (this.$button.classList.contains(this.buttonDisabledClass)) {
+                    event.preventDefault();
+                }
+            });
+        }
+
+        // Метод обновления формы
+        refresh() {
+            this.handleAllListeners(false);
+            this.removeErrorWrappers();
+            this.init();
         }
     }
 
